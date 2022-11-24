@@ -1,33 +1,37 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import './Feed.css'
 import MessageSender from './MessageSender'
 import Post from './Post'
 import StoryReel from './StoryReel'
+import db from './firebase'
 
 function Feed() {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    db.collection("post")
+    .orderBy('timestamp', 'desc')
+    .onSnapshot((snapshot) =>
+    setPosts(snapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() }))))
+  })
+
+
   return (
     <div className='feed'>
         <StoryReel />
-        {/* MessageSender */}
         <MessageSender />
-        <Post
-          profilePic="https://pub-static.fotor.com/assets/projects/pages/d5bdd0513a0740a8a38752dbc32586d0/fotor-03d1a91a0cec4542927f53c87e0599f6.jpg"
-          message="Hi, hello!"
-          timestamp="this is timestamp"
-          username="lililililay"
-          image="https://hatrabbits.com/wp-content/uploads/2017/01/random.jpg" />
 
-        <Post
-          profilePic="https://pub-static.fotor.com/assets/projects/pages/d5bdd0513a0740a8a38752dbc32586d0/fotor-03d1a91a0cec4542927f53c87e0599f6.jpg"
-          message="Hi, hello!"
-          timestamp="this is timestamp"
-          username="lililililay" />
-        {/* <Post
-        profilePic={profilePic}
-        message={message}
-        timestamp={timestamp}
-        username={username}
-        image={image} /> */}
+        {posts.map((post) => (
+          <Post
+          key={post.id}
+          profilePic={post.data.profilePic}
+          message={post.data.message}
+          timestamp={post.data.timestamp}
+          username={post.data.username}
+          image={post.data.image} 
+          />
+        ))}
+
     </div>
   )
 }
